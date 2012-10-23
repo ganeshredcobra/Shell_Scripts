@@ -20,11 +20,20 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-SRCDIR="/home/<username>/Documents" #Enter Source Dir
-DESTDIR="/home/<username>/Backups/" #Enter Destination Dir
-echo $SRCDIR | cut -c3-5
-[ ! -d "$BAK" ] && mkdir -p "$DESTDIR"
-FILENAME=ug-$(date +"%d-%m-%Y").tgz
+USERNAME=$(whoami)
+echo $USERNAME
+read -p "Enter the Source Directory : " SRC
+SRCDIR="/home/$USERNAME/$SRC" # Source Dir
+DESTDIR="/home/$USERNAME/Backups/" # Destination Dir
+#echo $SRCDIR | cut -c3-5
 #tar --create --gzip --file=$DESTDIR$FILENAME $SRCDIR
-(tar cf - $SRCDIR | pv -n -s `du -sb $SRCDIR | awk '{print $1}'` | gzip -9 > $DESTDIR$FILENAME.tgz) 2>&1 | dialog --gauge 'Progress' 7 70
+if [ -d "$SRCDIR" ]
+then
+	echo "$SRCDIR directory  exists!"
+	[ ! -d "$BAK" ] && mkdir -p "$DESTDIR"
+	FILENAME=$SRC-$(date +"%d-%m-%Y").tgz
+	(tar cf - $SRCDIR | pv -n -s `du -sb $SRCDIR | awk '{print $1}'` | gzip -9 > $DESTDIR$FILENAME.tgz) 2>&1 | dialog --gauge 'Progress' 7 70
+else
+	echo "$SRCDIR directory not found!"
+fi
 

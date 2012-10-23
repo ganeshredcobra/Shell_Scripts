@@ -21,7 +21,7 @@
 #       MA 02110-1301, USA.
 ### MySQL Server Login Info ###
 MUSER="root"
-MPASS="space123"
+MPASS="******"
 MHOST="localhost"
 MYSQL="$(which mysql)"
 MYSQLDUMP="$(which mysqldump)"

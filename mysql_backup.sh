@@ -20,8 +20,10 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 ### MySQL Server Login Info ###
-MUSER="root"
-MPASS="******"
+read -p "Do you want back up all databases [y/n] :" OPT
+#echo $OPT
+read -p "Enter the database username :" MUSER
+read -p "Enter the database password :" MPASS
 MHOST="localhost"
 MYSQL="$(which mysql)"
 MYSQLDUMP="$(which mysqldump)"
@@ -33,12 +35,22 @@ NOW=$(date +"%d-%m-%Y")
 ### See comments below ###
 ### [ ! -d $BAK ] && mkdir -p $BAK || /bin/rm -f $BAK/* ###
 [ ! -d "$BAK" ] && mkdir -p "$BAK"
+
+if [ "$OPT" = "y" ] 
+then
+	DBS="$($MYSQL -u $MUSER -h $MHOST -p$MPASS -Bse 'show databases')"
+	for db in $DBS
+	do
+ 		FILE=$BAK/$db.$NOW-$(date +"%T").gz
+ 		$MYSQLDUMP --single-transaction -u $MUSER -h $MHOST -p$MPASS $db | $GZIP -9 > $FILE
+	done
+else
+	read -p "Enter the database name : " DBNAME
+	FILE=$BAK/$DBNAME.$NOW-$(date +"%T").gz
+	$MYSQLDUMP -u $MUSER -h $MHOST -p$MPASS $DBNAME | $GZIP -9 > $FILE
+	
+fi
  
-DBS="$($MYSQL -u $MUSER -h $MHOST -p$MPASS -Bse 'show databases')"
-for db in $DBS
-do
- FILE=$BAK/$db.$NOW-$(date +"%T").gz
- $MYSQLDUMP --single-transaction -u $MUSER -h $MHOST -p$MPASS $db | $GZIP -9 > $FILE
-done
+
  
 

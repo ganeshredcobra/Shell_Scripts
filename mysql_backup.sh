@@ -28,7 +28,7 @@ MHOST="localhost"
 MYSQL="$(which mysql)"
 MYSQLDUMP="$(which mysqldump)"
 BAK="./backup/mysql"
-GZIP="$(which gzip)"
+BZIP="$(which bzip2)"
 
 NOW=$(date +"%d-%m-%Y")
  
@@ -41,13 +41,13 @@ then
 	DBS="$($MYSQL -u $MUSER -h $MHOST -p$MPASS -Bse 'show databases')"
 	for db in $DBS
 	do
- 		FILE=$BAK/$db.$NOW-$(date +"%T").gz
- 		$MYSQLDUMP --single-transaction -u $MUSER -h $MHOST -p$MPASS $db | $GZIP -9 > $FILE
+ 		FILE=$BAK/$db.$NOW-$(date +"%T").bz2
+ 		$MYSQLDUMP --single-transaction -u $MUSER -h $MHOST -p$MPASS $db | $BZIP -z1 > $FILE
 	done
 else
 	read -p "Enter the database name : " DBNAME
-	FILE=$BAK/$DBNAME.$NOW-$(date +"%T").gz
-	$MYSQLDUMP -u $MUSER -h $MHOST -p$MPASS $DBNAME | $GZIP -9 > $FILE
+	FILE=$BAK/$DBNAME.$NOW-$(date +"%T").bz2
+	$MYSQLDUMP -u $MUSER -h $MHOST -p$MPASS $DBNAME | $BZIP -z1 > $FILE
 	
 fi
  

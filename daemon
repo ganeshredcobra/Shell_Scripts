@@ -1,0 +1,61 @@
+#! /bin/bash
+# -*- coding: utf-8 -*-
+#
+#       daemon.sh
+#       
+#       Copyright 2012 Ganesh <ganeshredcobra@gmail.com>
+#       
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 2 of the License, or
+#       (at your option) any later version.
+#       
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#       GNU General Public License for more details.
+#       
+#       You should have received a copy of the GNU General Public License
+#       along with this program; if not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#       MA 02110-1301, USA.
+#
+### BEGIN INIT INFO
+# Provides: testdaemon
+# Required-Start: 
+# Should-Start: 
+# Required-Stop: 
+# Should-Stop:
+# Default-Start:  3 5
+# Default-Stop:   0 1 2 6
+# Short-Description: Test daemon process
+# Description:    Runs up the test daemon process
+### END INIT INFO
+
+# Activate the python virtual environment
+#    . /path_to_virtualenv/activate
+
+case "$1" in
+  start)
+    echo "Starting server"
+    # Start the daemon 
+    python /home/ganesh/Pictures/python-daemon.py start
+    ;;
+  stop)
+    echo "Stopping server"
+    # Stop the daemon
+    python /home/ganesh/Pictures/python-daemon.py stop
+    ;;
+  restart)
+    echo "Restarting server"
+    python /home/ganesh/Pictures/python-daemon.py restart
+    ;;
+  *)
+    # Refuse to do other stuff
+    echo "Usage: /etc/init.d/testdaemon.sh {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0
+

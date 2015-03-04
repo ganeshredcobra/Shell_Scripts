@@ -20,12 +20,45 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
+i=0
 SCANDIR=~/Scanned_Documents/
-#scanimage --device-name=$C_DEVICE --mode Gray --source=ADF -x 210 -l 0 -y 297 --resolution=$C_RESOLUTION -t 0 --batch=$C_SCANDIR/%d$1 --format=pnm | tee >(zenity --progress --title "$S_TITLE" --text "$S_SCANNING" --pulsate --auto-close)
 ENTRY=$(zenity --entry --text "Please enter your name" --title "Enter your name")
-scanimage| tee >(zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close) > $SCANDIR/$ENTRY.pnm
-cd $SCANDIR
-convert $ENTRY.pnm $ENTRY.jpg
-convert $ENTRY.pnm $ENTRY.pdf
-rm $ENTRY.pnm 
-usb_modeswitch -R -v 04a9 -p 2759| tee >(zenity --progress  --text "Resetting" --pulsate --auto-close)
+function SAV_CONV {
+	cd $SCANDIR
+	convert $ENTRY.pnm $ENTRY.jpg
+	convert $ENTRY.pnm $ENTRY.pdf
+	rm $ENTRY.pnm
+	usb_modeswitch -R -v 04a9 -p 2759| tee >(zenity --progress  --text "Resetting" --pulsate --auto-close)
+	nautilus $SCANDIR  
+           }
+function EXIT {
+	exit
+		}
+
+#scanimage| tee >(zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close) > $SCANDIR/$ENTRY.pnm
+S_CHOICES=$(zenity --list --checklist --title="Output Type" --column="" --column="Export Format" FALSE "Grayscale" FALSE "Color");
+#echo $S_CHOICES
+if [ "$S_CHOICES" == "Grayscale" ]
+then
+	#echo "Grayscale"
+	while [ $i -ne 1 ]
+	do
+		scanimage --mode gray > $SCANDIR/$ENTRY.pnm
+		i=1
+	done | (zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close)
+	SAV_CONV	
+elif [ "$S_CHOICES" == "Color" ]
+then
+ 	#echo "Color"
+	while [ $i -ne 1 ]
+	do
+		scanimage --mode color --resolution 300 > $SCANDIR/$ENTRY.pnm
+		i=1
+	done | (zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close)
+	SAV_CONV	
+else
+	#echo "None"
+	#EXIT
+	zenity --error --text "Wrong Selection! "
+fi
+

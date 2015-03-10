@@ -22,43 +22,54 @@
 
 i=0
 SCANDIR=~/Scanned_Documents/
-ENTRY=$(zenity --entry --text "Please enter your name" --title "Enter your name")
+
 function SAV_CONV {
 	cd $SCANDIR
 	convert $ENTRY.pnm $ENTRY.jpg
-	convert $ENTRY.pnm $ENTRY.pdf
+	convert $ENTRY.pnm out.pdf
+	ps2pdf -dPDFSETTINGS=/ebook out.pdf $ENTRY.pdf
 	rm $ENTRY.pnm
+	rm out.pdf
 	usb_modeswitch -R -v 04a9 -p 2759| tee >(zenity --progress  --text "Resetting" --pulsate --auto-close)
-	nautilus $SCANDIR  
-           }
+	zenity --question --title="Question" --text="Do you want to scan again?"
+	if [[ $? == 0 ]] ; then
+		PROCESS
+	else
+   		nautilus $SCANDIR
+	fi	  
+       }
 function EXIT {
 	exit
 		}
+function PROCESS {
+	ENTRY=$(zenity --entry --text "Please enter Document name" --title "Enter name")
+	#scanimage| tee >(zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close) > $SCANDIR/$ENTRY.pnm
+	S_CHOICES=$(zenity --list --checklist --title="Output Type" --column="" --column="Export Format" FALSE "Grayscale" FALSE "Color");
+	#echo $S_CHOICES
+	if [ "$S_CHOICES" == "Grayscale" ]
+	then
+		#echo "Grayscale"
+		while [ $i -ne 1 ]
+		do
+			scanimage --mode gray > $SCANDIR/$ENTRY.pnm
+			i=1
+		done | (zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close)
+		SAV_CONV	
+	elif [ "$S_CHOICES" == "Color" ]
+	then
+	 	#echo "Color"
+		while [ $i -ne 1 ]
+		do
+			scanimage --mode color --resolution 300 > $SCANDIR/$ENTRY.pnm
+			i=1
+		done | (zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close)
+		SAV_CONV	
+	else
+		#echo "None"
+		#EXIT
+		zenity --error --text "Wrong Selection! "
+	fi
+		exit
+		}
 
-#scanimage| tee >(zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close) > $SCANDIR/$ENTRY.pnm
-S_CHOICES=$(zenity --list --checklist --title="Output Type" --column="" --column="Export Format" FALSE "Grayscale" FALSE "Color");
-#echo $S_CHOICES
-if [ "$S_CHOICES" == "Grayscale" ]
-then
-	#echo "Grayscale"
-	while [ $i -ne 1 ]
-	do
-		scanimage --mode gray > $SCANDIR/$ENTRY.pnm
-		i=1
-	done | (zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close)
-	SAV_CONV	
-elif [ "$S_CHOICES" == "Color" ]
-then
- 	#echo "Color"
-	while [ $i -ne 1 ]
-	do
-		scanimage --mode color --resolution 300 > $SCANDIR/$ENTRY.pnm
-		i=1
-	done | (zenity --progress --title "TITLE" --text "SCANNING" --pulsate --auto-close)
-	SAV_CONV	
-else
-	#echo "None"
-	#EXIT
-	zenity --error --text "Wrong Selection! "
-fi
-
+PROCESS

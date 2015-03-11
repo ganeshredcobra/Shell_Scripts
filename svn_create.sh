@@ -52,6 +52,7 @@ echo "SVNPath /var/subversion/$REPO" >> $TEMP_CONF
 echo "AuthType Basic" >> $TEMP_CONF
 echo "AuthName \"Subversion Repository\"" >> $TEMP_CONF
 echo "AuthUserFile /etc/apache2/dav_svn.passwd" >> $TEMP_CONF
+echo "AuthzSVNAccessFile /etc/apache2/svn_access_control" >> $TEMP_CONF 
 echo "Require valid-user" >> $TEMP_CONF
 echo "#SSLRequireSSL" >> $TEMP_CONF
 echo "</Location>" >> $TEMP_CONF

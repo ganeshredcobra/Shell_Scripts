@@ -20,8 +20,8 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-SVN_ACESS_CTRL=svn_access_control
-TEMP_CONF=tmp.txt
+SVN_ACESS_CTRL=/etc/apache2/svn_access_control
+TEMP_CONF=/tmp/tmp.txt
 
 function EXIT {
 	exit

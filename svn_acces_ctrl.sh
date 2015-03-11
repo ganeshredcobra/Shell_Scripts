@@ -31,7 +31,7 @@ function ADD_REPO_FIRST {
     REPO=$(zenity --entry --text "Please enter Repository name" --title "Enter name")
     echo " " >> $TEMP_CONF
     echo "[$REPO:/]" >> $TEMP_CONF
-    echo "dts = rw" >> $TEMP_CONF
+    echo "@admin = rw" >> $TEMP_CONF
     ACCESS=$(zenity --entry --text "Enter user to be added" --title "Enter username")
     echo "$ACCESS  = rw" >> $TEMP_CONF
 		}

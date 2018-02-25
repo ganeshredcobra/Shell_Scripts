@@ -20,15 +20,17 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-USER="renjith@beginow.in"
-PASSWD="renjith88"
-DEV1="d21f5600-0cd0-11e8-b10e-03e9461109ca"
+URL=""
+PORT="8080"
+USER=""
+PASSWD=""
+DEV1="559f1fe0-16ba-11e8-8ff4-efdea6cdefb2"
 DEV2="5453e3b0-08ef-11e8-9141-1d8d2edf4f93"
 DEV3="3c69e6a0-1196-11e8-a6c4-03e9461109ca"
 ID=""
 sdateCal="NULL"
 edateCal="NULL"
-declare -a KEYS=('Humidity' 'Temperature');
+declare -a KEYS=('Humidity' 'Temperature' 'Rain_mm' 'UPS' 'Wind Direction' 'Wind Speed');
 
 function CHCKPKGS {
 which jq > /dev/null 2>&1
@@ -68,18 +70,21 @@ if [[ $selDev == "DEV1"  || $selDev == "DEV2"  || $selDev == "DEV3" ]]; then
 	 # do something else			  
 	  #echo "Return zero $3"
 		EDATE=$(($(date -d "$edateCal - 1 min" +%s%N)/1000000))
-		JWT_TOKEN="$(curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"username":'\"$USER\"', "password":'\"$PASSWD\"'}' 'http://demo.thingsboard.io/api/auth/login'|jq -r '.token')"
+		JWT_TOKEN="$(curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"username":'\"$USER\"', "password":'\"$PASSWD\"'}' 'http://96.126.116.96:8080/api/auth/login'|jq -r '.token')"
 		echo "Device ID:$selDev Start Date:$sdateCal End Date:$edateCal" 
 		for (( i=0; i<${#KEYS[@]}; i++ ));
 		do
 			#Made curl silent
 			fileName="$selDev-${KEYS[i]}$(date  +"-%d-%m-%Y-%I:%M%p").csv"
-			curl -s -X GET "https://demo.thingsboard.io/api/plugins/telemetry/DEVICE/$ID/values/timeseries?keys=${KEYS[0]},${KEYS[1]}&startTs=$SDATE&endTs=$EDATE&interval=6000" --header "Content-Type:application/json" --header "X-Authorization: Bearer $JWT_TOKEN"|jq -r "select(.${KEYS[i]} != null)|.${KEYS[i]}|.[]|[(.ts|tostring),(.value|tostring)]| @csv" > $fileName
-			if [ -s "$fileName" ]
+			tfileName=${fileName// /}
+			curl -G -s -X GET "http://96.126.116.96:8080/api/plugins/telemetry/DEVICE/$ID/values/timeseries?&startTs=$SDATE&endTs=$EDATE&interval=6000" --data-urlencode "keys=${KEYS[i]}" --header "Content-Type:application/json" --header "X-Authorization: Bearer $JWT_TOKEN"|jq -r "select(.\"${KEYS[i]}\" != null)|.\"${KEYS[i]}\"|.[]|[(.ts|tostring),(.value|tostring)]| @csv" > $tfileName
+			if [ -s "$tfileName" ]
 			then 
 			   echo "${KEYS[i]} data exported to $fileName "
 			else
-			   rm $fileName
+			   #if [ -f "$fileName" ];then
+			   	#rm $fileName
+			   #fi
 			   echo "${KEYS[i]} data does not exist for given dates"
 			fi
 		done				
